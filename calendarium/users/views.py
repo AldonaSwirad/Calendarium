@@ -1,36 +1,56 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from django.contrib.auth import login, authenticate, logout
-from .forms import LoginForm
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import AuthenticationForm
+from .forms import UserRegisterForm
+from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import get_template
+from django.template import Context
 
-def sign_in(request):
 
-    if request.method == 'GET':
-        if request.user.is_authenticated:
-            return redirect('posts')
-        
-        form = LoginForm()
-        return render(request,'users/login.html', {'form': form})
-    
-    elif request.method == 'POST':
-        form = LoginForm(request.POST)
-        
-        if form.is_valid():
-            username = form.cleaned_data['username']
-            password=form.cleaned_data['password']
-            user = authenticate(request,username=username,password=password)
-            if user:
-                login(request, user)
-                messages.success(request,f'Hi {username.title()}, welcome back!')
-                return redirect('posts')
-        
-        # either form not valid or user is not authenticated
-        messages.error(request,f'Invalid username or password')
-        return render(request,'users/login.html',{'form': form})
-    
-    
-        
-def sign_out(request):
-    logout(request)
-    messages.success(request,f'You have been logged out.')
-    return redirect('login')        
+#################### index####################################### 
+def index(request):
+	return render(request, 'users/index.html', {'title':'index'})
+
+########### register here ##################################### 
+def register(request):
+	if request.method == 'POST':
+		form = UserRegisterForm(request.POST)
+		if form.is_valid():
+			form.save()
+			username = form.cleaned_data.get('username')
+			email = form.cleaned_data.get('email')
+			######################### mail system #################################### 
+			htmly = get_template('users/Email.html')
+			d = { 'username': username }
+			subject, from_email, to = 'welcome', 'your_email@gmail.com', email
+			html_content = htmly.render(d)
+			msg = EmailMultiAlternatives(subject, html_content, from_email, [to])
+			msg.attach_alternative(html_content, "text/html")
+			msg.send()
+			################################################################## 
+			messages.success(request, f'Your account has been created ! You are now able to log in')
+			return redirect('login')
+	else:
+		form = UserRegisterForm()
+	return render(request, 'users/register.html', {'form': form, 'title':'register here'})
+
+################ login forms################################################### 
+def Login(request):
+	if request.method == 'POST':
+
+		# AuthenticationForm_can_also_be_used__
+
+		username = request.POST['username']
+		password = request.POST['password']
+		user = authenticate(request, username = username, password = password)
+		if user is not None:
+			form = login(request, user)
+			messages.success(request, f' welcome {username} !!')
+			return redirect('index')
+		else:
+			messages.info(request, f'account done not exit plz sign in')
+	form = AuthenticationForm()
+	return render(request, 'users/login.html', {'form':form, 'title':'log in'})
