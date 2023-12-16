@@ -2,13 +2,35 @@
 <!-- Bootstrap5 -->
 <html>
 <head>
-    <title>Calendarium</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
-      
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.js"></script>
+    
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark ">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="{% url 'home' %}">Calendarium</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText"
+            aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarText">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="{% url 'home_todo' %}">ToDo</a>
+              </li>
+            </ul>
+            <span class="navbar-text">
+              Witaj, {{ request.user.username }}
+              <a class="nav-link" href="{% url 'logout' %}">Wyloguj</a>
+            </span>
+          </div>
+        </div>
+      </nav>
+      <br></br>
+
+ 
 </head>
 <body>
 <div class="container">
@@ -21,32 +43,43 @@
     // Fullcalendar.io
    $(document).ready(function () {
        var calendar = $('#calendar').fullCalendar({
+        // locale: 'pl',
+        monthNames: ['Styczeń', 'Luty', 'Marzec', 'Kwiecień', 'Maj', 'Czerwiec', 'Lipiec', 'Sierpień', 'Wrzesień', 'Październik', 'Listopad', 'Grudzień'],
+        monthNamesShort: ['Sty', 'Lut', 'Mar', 'Kwi', 'Maj', 'Cze', 'Lip', 'Sie', 'Wrz', 'Paź', 'Lis', 'Gru'],
+        dayNames: ['Poniedziałek', 'Wtorek', 'Środa', 'Czwartek', 'Piątek', 'Sobota', 'Niedziela'],
+        dayNamesShort: ['Pn', 'Wt', 'Śr', 'Cz', 'Pt', 'Sb', 'Nd'],
            header: {
                left: 'prev,next today',
                center: 'title',
                right: 'month,agendaWeek,agendaDay'
            },
-           events: '/all_events',
+           buttonText: {
+            today: 'Dziś',
+            month: 'Miesiąc',
+            week: 'Tydzień',
+            day: 'Dzień',
+            },
+           events: '/events/all_events',
            selectable: true,
            selectHelper: true,
            editable: true,
            eventLimit: true,
            select: function (start, end, allDay) {
-               var title = prompt("Enter Event Title");
+               var title = prompt("Wpisz tytuł wydarzenia");
                if (title) {
                    var start = $.fullCalendar.formatDate(start, "Y-MM-DD HH:mm:ss");
                    var end = $.fullCalendar.formatDate(end, "Y-MM-DD HH:mm:ss");
                    $.ajax({
                        type: "GET",
-                       url: '/add_event',
+                       url: '/events/add_event',
                        data: {'title': title, 'start': start, 'end': end},
                        dataType: "json",
                        success: function (data) {
                            calendar.fullCalendar('refetchEvents');
-                           alert("Added Successfully");
+                           alert("Dodano wydarzenie");
                        },
                        error: function (data) {
-                           alert('There is a problem!!!');
+                           alert('Wystąpił problem, spróbuj ponownie później.');
                        }
                    });
                }
@@ -58,15 +91,15 @@
                var id = event.id;
                $.ajax({
                    type: "GET",
-                   url: '/update',
+                   url: '/events/update',
                    data: {'title': title, 'start': start, 'end': end, 'id': id},
                    dataType: "json",
                    success: function (data) {
                        calendar.fullCalendar('refetchEvents');
-                       alert('Event Update');
+                       alert('Wydarzenie zaktualizowane');
                    },
                    error: function (data) {
-                       alert('There is a problem!!!');
+                       alert('Wystąpił problem, spróbuj ponownie później.');
                    }
                });
            },
@@ -78,33 +111,33 @@
                var id = event.id;
                $.ajax({
                    type: "GET",
-                   url: '/update',
+                   url: '/events/update',
                    data: {'title': title, 'start': start, 'end': end, 'id': id},
                    dataType: "json",
                    success: function (data) {
                        calendar.fullCalendar('refetchEvents');
-                       alert('Event Update');
+                       alert('Wydarzenie zaktualizowane');
                    },
                    error: function (data) {
-                       alert('There is a problem!!!');
+                       alert('Wystąpił problem, spróbuj ponownie później.');
                    }
                });
            },
  
            eventClick: function (event) {
-               if (confirm("Are you sure you want to remove it?")) {
+               if (confirm("Czy na pewno chcesz to usunąć?")) {
                    var id = event.id;
                    $.ajax({
                        type: "GET",
-                       url: '/remove',
+                       url: '/events/remove',
                        data: {'id': id},
                        dataType: "json",
                        success: function (data) {
                            calendar.fullCalendar('refetchEvents');
-                           alert('Event Removed');
+                           alert('Wydarzenie usunięte');
                        },
                        error: function (data) {
-                           alert('There is a problem!!!');
+                           alert('Wystąpił problem, spróbuj ponownie później.');
                        }
                    });
                }
