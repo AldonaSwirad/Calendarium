@@ -24,4 +24,5 @@ urlpatterns = [
     path('events/', include('events.urls')),
     path('todo/', include('todo.urls')),
     path('',include('users.urls')),
+    path('captcha/', include('captcha.urls')),
 ]

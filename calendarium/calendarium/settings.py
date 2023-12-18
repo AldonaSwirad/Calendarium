@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     'users',
     'todo',
     'crispy_forms',
+    'captcha',
+
 ]
 
 MIDDLEWARE = [
@@ -127,20 +129,6 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# CRISPY_TEMPLATE_PACK = 'bootstrap5'
 
-# STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-# STATIC_URL = 'static/'
-
-# MEDIA_ROOT = os.path.join(BASE_DIR, 'static')
-# MEDIA_ROOT = 'media/'
-
-# LOGIN_REDIRECT_URL = "index"
-
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = 'smpt.gamil.com'
-# EMAIL_PORT = 587
-# EMAIL_USE_TLS = True
-
-# EMAIL_HOST_USER = "aldonaswirad@gmail.com"
-# EMAIL_HOST_PASSWORD = "Rzeszowianka123."
+CAPTCHA_CHALLENGE_FUNCT = 'captcha.helpers.math_challenge'
+CAPTCHA_TIMEOUT = 2  # Czas na rozwiązanie captchy w minutach
